@@ -23,7 +23,6 @@ end
 prompt "Welcome to Calculator!"
 
 loop do
-
   first_number = ''
   loop do
     prompt "Please enter the first number:"
@@ -61,31 +60,29 @@ Which operation would you like to perform:
   operation = ''
   loop do
     operation = gets.chomp
-    
+
     if %w(1 2 3 4).include?(operation)
       break
     else
       prompt "please enter a valid operation"
     end
-
   end
 
   prompt "#{operation_to_message(operation)} the two numbers..."
 
   result = case operation.to_i
-            when 1 then first_number + second_number
-            when 2 then first_number - second_number
-            when 3 then first_number * second_number
-            when 4 then first_number / second_number
-            else puts "That is not a valid option."
-  end
+           when 1 then first_number + second_number
+           when 2 then first_number - second_number
+           when 3 then first_number * second_number
+           when 4 then first_number / second_number
+           else puts "That is not a valid option."
+           end
 
   prompt "Your result is #{result}"
 
   prompt "Would you like to perform another calculation? (y/n)"
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
-
 end
 
 prompt "Thank you, goodbye!"
