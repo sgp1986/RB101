@@ -1,0 +1,12 @@
+welcome: "Welcome to Calculator!"
+bye: "Thank you, goodbye!"
+invalid: "Not a valid number."
+operator_prompt: "Which operation would you like to perform: \n
+    1) Add \n
+    2) Subtract \n
+    3) Multiply \n
+    4) Divide"
+not_op: "Not an option, please enter 1, 2, 3, or 4"
+first: "Enter the first number:"
+second: "Enter the second number:"
+again: "Would you like to perform another operation? (y/n)"
