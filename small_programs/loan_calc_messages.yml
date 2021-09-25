@@ -1,0 +1,8 @@
+welcome: "Welcome to the Loan Calculator!"
+loan: "What is your loan amount?"
+apr: "What is the Annual Percentage Rate(APR)?"
+duration: "What is the duration of your loan? (Years)"
+down: "What will you pay for a down payment?"
+invalid: "Please enter a valid "
+again: "Would you like to check on another loan?"
+bye: "Thank you for using the Loan Calculator, goodbye!"
