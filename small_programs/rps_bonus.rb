@@ -1,3 +1,9 @@
+score = {
+  'player' => 0,
+  'computer' => 0,
+  'no one' => 0
+}
+
 WINNING_CHOICE = {
   'rock' => ['scissors', 'lizard'],
   'paper' => ['rock', 'spock'],
@@ -6,58 +12,65 @@ WINNING_CHOICE = {
   'lizard' => ['spock', 'paper']
 }
 
-VALID_CHOICES = {
-  'r' => 'rock',
-  'p' => 'paper',
-  'sc' => 'scissors',
-  'sp' => 'spock',
-  'l' => 'lizard'
-}
+VALID_CHOICES = WINNING_CHOICE.keys
 
 def prompt(message)
   puts "=> #{message}"
 end
 
-def win?(first, second)
-  WINNING_CHOICE[first].include?(second)
+def user_choice(input)
+  VALID_CHOICES.include?(input)
 end
 
-def display_results(player, computer)
-  if win?(player, computer)
-    prompt "You won!"
-  elsif win?(computer, player)
-    prompt "Computer won!"
+def who_won?(player_move, computer_move, winning_choice)
+  if winning_choice[player_move].include?(computer_move)
+    'player'
+  elsif winning_choice[computer_move].include?(player_move)
+    'computer'
   else
-    prompt "It's a tie!"
+    'no one'
   end
-end
-
-def user_choice(move)
-  VALID_CHOICES.include?(move)
 end
 
 loop do
   choice = ''
   loop do
     prompt "Choose one: #{WINNING_CHOICE.keys.join(', ')}"
-    choice = gets.chomp
+    choice = gets.chomp.downcase
 
-    if user_choice(choice)
-      break
+    if choice == 's'
+      prompt 'Do you mean scissors or spock?'
+      choice = gets.chomp.downcase
+      if choice.start_with?('sc')
+        choice = 'scissors'
+      elsif choice.start_with?('sp')
+        choice = 'spock'
+      else
+        puts 'invalid choice.'
+      end
     else
-      prompt "That's not a valid choice."
+      VALID_CHOICES.each do |selection|
+        if selection.start_with?(choice)
+          choice = selection
+        end
+      end
     end
+    break if user_choice(choice)
+    prompt "Invalid input, try again."
   end
 
   computer_choice = WINNING_CHOICE.keys.sample
 
-  prompt "You chose: #{choice}; computer chose: #{computer_choice}"
+  winner = who_won?(choice, computer_choice, WINNING_CHOICE)
 
-  display_results(choice, computer_choice)
+  score[winner] += 1
 
-  prompt "Do you want to play again?"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  prompt "You chose: #{choice}; the computer chose: #{computer_choice}"
+  prompt "#{winner.upcase} WON!! \n
+    You have #{score['player']}.\n
+    The computer has #{score['computer']}\n\n"
+
+  break if score.value?(3)
 end
 
-prompt "Thank you for playing, goodbye!"
+prompt "Game over. Thank you for playing, goodbye!"
