@@ -17,11 +17,6 @@ def number?(input)
   integer?(input) || float?(input)
 end
 
-def get_input(input)
- 
-end
-
-
 prompt MESSAGES['welcome']
 
 loop do
@@ -36,19 +31,18 @@ loop do
       prompt MESSAGES['invalid'] + "amount."
     end
   end
-  
+
   apr = ''
   loop do
     prompt MESSAGES['apr']
     apr = gets.chomp
 
-    if number?(apr)
+    if number?(apr) || apr == '0'
       break
     else
       prompt MESSAGES['invalid'] + "percentage."
     end
   end
-
 
   duration = ''
   loop do
@@ -58,7 +52,7 @@ loop do
     if number?(duration)
       break
     else
-      prompt MESSAGES['invalid'] + "number."
+      prompt MESSAGES['invalid'] + "number of years."
     end
   end
 
@@ -67,10 +61,10 @@ loop do
     prompt MESSAGES['down']
     down_payment = gets.chomp
 
-    if number?(down_payment)
+    if number?(down_payment) || down_payment == '0'
       break
     else
-      prompt MESSAGES['invalid'] + "number."
+      prompt MESSAGES['invalid'] + "amount."
     end
   end
 
@@ -87,7 +81,7 @@ loop do
                       (1 + monthly_interest.to_f)**(-monthly_duration)))
   end
 
-  prompt "Your monthly payment after a down payment of " \
+  prompt "Your monthly payment after a down payment of" \
          " $#{format('%.2f', down_payment)}," \
          " is $#{format('%.2f', monthly_payment)}" \
          " for #{format('%.0f', monthly_duration)} months. \n\n"
