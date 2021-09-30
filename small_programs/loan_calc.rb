@@ -70,19 +70,16 @@ def get_down_payment
 end
 
 def calc_monthly_payment(loan_amount, apr, down_payment, monthly_duration)
-  if apr == 0
-    monthly_payment = (loan_amount.to_f - down_payment.to_f) / monthly_duration
-  else 
-    annual_interest = apr.to_f / 100
-    monthly_interest = annual_interest / 12
-    monthly_payment = (loan_amount.to_f - down_payment.to_f) *
-                      (monthly_interest.to_f / (1 -
-                      (1 + monthly_interest.to_f)**(-monthly_duration)))
-  end
+  annual_interest = apr.to_f / 100
+  monthly_interest = annual_interest / 12
+  monthly_payment = (loan_amount.to_f - down_payment.to_f) *
+                    (monthly_interest.to_f / (1 -
+                    (1 + monthly_interest.to_f)**(-monthly_duration)))
   monthly_payment
 end
 
-def display_results(loan_amount, apr, down_payment, monthly_duration, monthly_payment, total_payment)
+def display_results(loan_amount, apr, down_payment,
+                    monthly_duration, monthly_payment, total_payment)
   prompt <<-MNTHPYMNT
   Your loan details are:
   Your loan amount: $#{format('%.2f', loan_amount)}
@@ -116,22 +113,26 @@ clear_screen
 prompt MESSAGES['welcome']
 
 loop do
-  
   loan_amount = get_loan_amount.to_f
   apr = get_apr.to_f
   duration = get_duration.to_f
   down_payment = get_down_payment.to_f
   monthly_duration = duration.to_f * 12
-
-  monthly_payment = calc_monthly_payment(loan_amount, apr, down_payment, monthly_duration)
-
   total_payment = (monthly_payment.to_f * monthly_duration.to_i)
 
-  display_results(loan_amount, apr, down_payment, monthly_duration, monthly_payment, total_payment)
+  if apr == 0
+    monthly_payment = (loan_amount.to_f - down_payment.to_f) / monthly_duration
+  else
+    monthly_payment = calc_monthly_payment(loan_amount, apr,
+                                           down_payment, monthly_duration)
+  end
+
+  display_results(loan_amount, apr, down_payment,
+                  monthly_duration, monthly_payment, total_payment)
 
   prompt MESSAGES['again']
   answer = again?
-  break unless yes?(answer) 
+  break unless yes?(answer)
   clear_screen
 end
 
