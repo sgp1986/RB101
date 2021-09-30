@@ -1,5 +1,13 @@
 require 'yaml'
+
 MESSAGES = YAML.load_file('loan_calc_messages.yml')
+
+VALID_YES = ['yes', 'y']
+VALID_NO = ['no', 'n']
+
+def clear_screen
+  system "clear"
+end
 
 def prompt(string)
   puts ">> #{string}"
@@ -17,85 +25,114 @@ def number?(input)
   integer?(input) || float?(input)
 end
 
-prompt MESSAGES['welcome']
-
-loop do
-  loan_amount = ''
+def get_loan_amount
+  prompt MESSAGES['loan']
+  loan_amount = nil
   loop do
-    prompt MESSAGES['loan']
     loan_amount = gets.chomp
-
-    if number?(loan_amount)
-      break
-    else
-      prompt MESSAGES['invalid'] + "amount."
-    end
+    break if number?(loan_amount)
+    prompt MESSAGES['invalid'] + "amount."
   end
+  loan_amount
+end
 
-  apr = ''
+def get_apr
+  prompt MESSAGES['apr']
+  apr = nil
   loop do
-    prompt MESSAGES['apr']
     apr = gets.chomp
-
-    if number?(apr) || apr == '0'
-      break
-    else
-      prompt MESSAGES['invalid'] + "percentage."
-    end
+    break if number?(apr) || apr == '0'
+    prompt MESSAGES['invalid'] + "percentage."
   end
+  apr
+end
 
-  duration = ''
+def get_duration
+  prompt MESSAGES['duration']
+  duration = nil
   loop do
-    prompt MESSAGES['duration']
     duration = gets.chomp
-
-    if number?(duration)
-      break
-    else
-      prompt MESSAGES['invalid'] + "number of years."
-    end
+    break if number?(duration)
+    prompt MESSAGES['invalid'] + "number of years."
   end
+  duration
+end
 
-  down_payment = ''
+def get_down_payment
+  prompt MESSAGES['down']
+  down_payment = nil
   loop do
-    prompt MESSAGES['down']
     down_payment = gets.chomp
-
-    if number?(down_payment) || down_payment == '0'
-      break
-    else
-      prompt MESSAGES['invalid'] + "amount."
-    end
+    break if number?(down_payment) || down_payment == '0'
+    prompt MESSAGES['invalid'] + "amount."
   end
+  down_payment
+end
 
-  monthly_duration = duration.to_f * 12
-
-  if apr.to_i == 0
+def calc_monthly_payment(loan_amount, apr, down_payment, monthly_duration)
+  if apr == 0
     monthly_payment = (loan_amount.to_f - down_payment.to_f) / monthly_duration
-  else
+  else 
     annual_interest = apr.to_f / 100
     monthly_interest = annual_interest / 12
-
     monthly_payment = (loan_amount.to_f - down_payment.to_f) *
                       (monthly_interest.to_f / (1 -
                       (1 + monthly_interest.to_f)**(-monthly_duration)))
   end
+  monthly_payment
+end
 
-  prompt "Your monthly payment after a down payment of" \
-         " $#{format('%.2f', down_payment)}," \
-         " is $#{format('%.2f', monthly_payment)}" \
-         " for #{format('%.0f', monthly_duration)} months. \n\n"
+def display_results(loan_amount, apr, down_payment, monthly_duration, monthly_payment, total_payment)
+  prompt <<-MNTHPYMNT
+  Your loan details are:
+  Your loan amount: $#{format('%.2f', loan_amount)}
+  Your down payment: $#{format('%.2f', down_payment)}
+  Your interest rate: #{format('%.2f', apr)}%
+  Your duration in months: #{format('%.0f', monthly_duration)}
+  Your monthly payment: $#{format('%.2f', monthly_payment)}
+  Your total repayment: $#{format('%.2f', total_payment)}
+  MNTHPYMNT
+end
+
+def yes?(input)
+  VALID_YES.include?(input)
+end
+
+def no?(input)
+  VALID_NO.include?(input)
+end
+
+def again?
+  input = nil
+  loop do
+    input = gets.chomp.downcase
+    break if yes?(input) || no?(input)
+    prompt MESSAGES['invalid'] + "option."
+  end
+  input
+end
+
+clear_screen
+prompt MESSAGES['welcome']
+
+loop do
+  
+  loan_amount = get_loan_amount.to_f
+  apr = get_apr.to_f
+  duration = get_duration.to_f
+  down_payment = get_down_payment.to_f
+  monthly_duration = duration.to_f * 12
+
+  monthly_payment = calc_monthly_payment(loan_amount, apr, down_payment, monthly_duration)
 
   total_payment = (monthly_payment.to_f * monthly_duration.to_i)
 
-  prompt "Your total payment on your $#{format('%.2f', loan_amount)}" \
-         " loan, after your down payment of $#{format('%.2f', down_payment)}," \
-         " is $#{format('%.2f', total_payment)}. \n\n"
+  display_results(loan_amount, apr, down_payment, monthly_duration, monthly_payment, total_payment)
 
   prompt MESSAGES['again']
-  answer = gets.chomp
-
-  break unless answer.downcase.start_with?('y')
+  answer = again?
+  break unless yes?(answer) 
+  clear_screen
 end
 
 prompt MESSAGES['bye']
