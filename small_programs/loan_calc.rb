@@ -1,5 +1,5 @@
 require 'yaml'
-
+require 'pry'
 MESSAGES = YAML.load_file('loan_calc_messages.yml')
 
 VALID_YES = ['yes', 'y']
@@ -78,8 +78,7 @@ def calc_monthly_payment(loan_amount, apr, down_payment, monthly_duration)
   monthly_payment
 end
 
-def display_results(loan_amount, apr, down_payment,
-                    monthly_duration, monthly_payment, total_payment)
+def display_results(loan_amount, down_payment, apr, monthly_duration, monthly_payment, total_payment)
   prompt <<-MNTHPYMNT
   Your loan details are:
   Your loan amount: $#{format('%.2f', loan_amount)}
@@ -118,7 +117,6 @@ loop do
   duration = get_duration.to_f
   down_payment = get_down_payment.to_f
   monthly_duration = duration.to_f * 12
-  total_payment = (monthly_payment.to_f * monthly_duration.to_i)
 
   if apr == 0
     monthly_payment = (loan_amount.to_f - down_payment.to_f) / monthly_duration
@@ -127,8 +125,9 @@ loop do
                                            down_payment, monthly_duration)
   end
 
-  display_results(loan_amount, apr, down_payment,
-                  monthly_duration, monthly_payment, total_payment)
+  total_payment = (monthly_payment.to_f * monthly_duration.to_i)
+
+  display_results(loan_amount, down_payment, apr, monthly_duration, monthly_payment, total_payment)
 
   prompt MESSAGES['again']
   answer = again?

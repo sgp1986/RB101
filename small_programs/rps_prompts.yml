@@ -1,0 +1,16 @@
+welcome: "Welcome to RPSLS!"
+rules: |
+  What's RPSLS?? Rock, Paper, Scissors, Lizard, Spock!
+  SCISSORS cuts PAPER covers ROCK crushes LIZARD poisons
+  SPOCK smashes SCISSORS decapitates LIZARD eats PAPER
+  disproves SPOCK vaporizes ROCK crushes SCISSORS
+  Easy, eh?
+invalid: "Invalid input, try again."
+s_s: "Did you mean scissors or spock?"
+choose: "Choose your move: "
+winner: " WON!! \n"
+user_score: "Player score: "
+comp_score: "Computer score: "
+game_over: "Game over, the winner is "
+again: "Do you want to play again?"
+bye: "Thank you for playing RPSLS, goodbye!"
