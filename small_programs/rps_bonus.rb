@@ -92,7 +92,7 @@ winner = ''
 clear_screen
 prompt MESSAGES['welcome']
 sleep(0.5)
-MESSAGES['rules'].split('').each { |c| print c; sleep(0.05) }
+MESSAGES['rules'].split('').each { |c| print c; sleep(0.03) }
 sleep(0.75)
 loop do
   loop do
