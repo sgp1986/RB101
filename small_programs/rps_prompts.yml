@@ -7,10 +7,11 @@ rules: |
   Easy, eh?
 invalid: "Invalid input, try again."
 s_s: "Did you mean scissors or spock?"
+s_invalid: "Your choice must be scissors/sc or spock/sp"
 choose: "Choose your move: "
 winner: " WON!! \n"
 user_score: "Player score: "
 comp_score: "Computer score: "
-game_over: "Game over, the winner is "
+game_over: "Game over!! Winner: The "
 again: "Do you want to play again?"
 bye: "Thank you for playing RPSLS, goodbye!"

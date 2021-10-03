@@ -1,30 +1,42 @@
+# REQUIREMENTS
 require 'yaml'
 require 'pry'
+
+# CONSTANT VARIABLES
 MESSAGES = YAML.load_file('rps_prompts.yml')
 
+CHOICES = {
+  'rock' => { shorthand: 'r', beats: ['scissors', 'lizard'] },
+  'paper' => { shorthand: 'p', beats: ['rock', 'spock'] },
+  'scissors' => { shorthand: 'sc', beats: ['paper', 'lizard'] },
+  'spock' => { shorthand: 'sp', beats: ['scissors', 'rock'] },
+  'lizard' => { shorthand: 'l', beats: ['spock', 'paper'] }
+}
+
+WINNING_SCORE = 3
+
+VALID_CHOICES = CHOICES.keys
+
+VALID_YES = ['yes', 'y']
+VALID_NO = ['no', 'n']
+
+# LOCAL VARIABLES
 score = {
   'player' => 0,
   'computer' => 0,
   'no one' => 0
 }
 
-WINNING_CHOICE = {
-  'rock' => ['scissors', 'lizard'],
-  'paper' => ['rock', 'spock'],
-  'scissors' => ['paper', 'lizard'],
-  'spock' => ['scissors', 'rock'],
-  'lizard' => ['spock', 'paper']
-}
-
-VALID_CHOICES = WINNING_CHOICE.keys
-
-VALID_YES = ['yes', 'y']
-VALID_NO = ['no', 'n']
-
+# METHOD DEFINITIONS
 def clear_screen
   system "clear"
 end
 
+def prompt(message)
+  puts "=> #{message}"
+end
+
+#   PLAY AGAIN DEFINITIONS
 def yes?(input)
   VALID_YES.include?(input)
 end
@@ -33,104 +45,139 @@ def no?(input)
   VALID_NO.include?(input)
 end
 
-def again?
+def again
   input = nil
   loop do
     input = gets.chomp.downcase
     break if yes?(input) || no?(input)
-    prompt MESSAGES['invalid'] + "option."
+    prompt MESSAGES['invalid']
   end
   input
 end
 
-def prompt(message)
-  puts "=> #{message}"
+# START OF PROGRAM DEFINITIONS
+def greet
+  clear_screen
+  prompt MESSAGES['welcome']
+  sleep(0.5)
+  MESSAGES['rules'].split('').each do |c|
+    print c
+    sleep(0.03)
+  end
+  sleep(0.75)
 end
 
-def who_won?(player_move, computer_move, winner)
-  if winner[player_move].include?(computer_move)
+def s_or_s(input)
+  prompt MESSAGES['s_s']
+  loop do
+    input = gets.chomp.downcase
+    if input.start_with?('sc')
+      input = 'scissors'
+      break
+    elsif input.start_with?('sp')
+      input = 'spock'
+      break
+    else
+      prompt MESSAGES['s_invalid']
+    end
+  end
+  input
+end
+
+def expand(input)
+  if CHOICES.find { |_, hash| hash[:shorthand] == input }
+    input = CHOICES.find { |_, hash| hash[:shorthand] == input }.first
+  else
+    input = ''
+  end
+end
+
+def need_expand(input)
+  if CHOICES.keys.include?(input)
+    input
+  else
+    expand(input)
+  end
+end
+
+def valid_choice?(input)
+  if CHOICES.keys.include?(input) || CHOICES.keys.include?(expand(input))
+    true
+  else
+    false
+  end
+end
+
+def get_user_move
+  input = ''
+  prompt MESSAGES['choose'] + CHOICES.keys.join(', ').to_s
+  loop do
+    input = gets.chomp.downcase
+    if input == 's'
+      input = s_or_s(input)
+    end
+    input = need_expand(input)
+    if valid_choice?(input)
+      break
+    else
+      prompt MESSAGES['invalid']
+    end
+  end
+  input
+end
+
+def who_won(player, computer)
+  if CHOICES[player][:beats].include?(computer)
     'player'
-  elsif winner[computer_move].include?(player_move)
+  elsif CHOICES[computer][:beats].include?(player)
     'computer'
   else
     'no one'
   end
 end
 
-def s_or_s(move)
-  prompt MESSAGES['s_s']
-  loop do
-    move = gets.chomp.downcase
-    if move.start_with?('sc')
-      move = 'scissors'
-      break
-    elsif move.start_with?('sp')
-      move = 'spock'
-      break
-    else
-      prompt MESSAGES['invalid']
-    end
-  end
-  move
-end
+greet()
 
-def valid_choice?(choice)
-  loop do
-    if VALID_CHOICES.each do |selection|
-         if selection.start_with?(choice)
-           choice = selection
-         end
-    end
-    break
-    else prompt "Invalid input, try again."
-    end
-  end
-  choice
-end
+loop do # MAIN LOOP
+  loop do # GAME LOOP
+    prompt <<-SCORE
+The score is:
+    Player: #{score['player']}
+    Computer: #{score['computer']}
+    Ties: #{score['no one']}
+    SCORE
+    choice = get_user_move
 
-winner = ''
-clear_screen
-prompt MESSAGES['welcome']
-sleep(0.5)
-MESSAGES['rules'].split('').each { |c| print c; sleep(0.03) }
-sleep(0.75)
-loop do
-  loop do
-    prompt MESSAGES['choose'] + "#{WINNING_CHOICE.keys.join(', ')}"
-    choice = gets.chomp.downcase
+    computer_choice = CHOICES.keys.sample
 
-    if choice == 's'
-      choice = s_or_s(choice)
-    end
-
-    choice = valid_choice?(choice)
-
-    computer_choice = WINNING_CHOICE.keys.sample
-
-    winner = who_won?(choice, computer_choice, WINNING_CHOICE)
+    winner = who_won(choice, computer_choice)
 
     score[winner] += 1
     sleep(0.5)
     prompt "You chose #{choice} and the computer chose #{computer_choice}\n\n"
     sleep(0.5)
-    prompt "#{winner.upcase}" + MESSAGES['winner']
-    prompt MESSAGES['user_score'] + "#{score['player']}"
-    prompt MESSAGES['comp_score'] + "#{score['computer']}"
+    prompt winner.upcase.to_s + MESSAGES['winner'] + "\n\n"
 
-    break if score.value?(3)
+    if WINNING_SCORE == score['player'] || WINNING_SCORE == score['computer']
+      prompt MESSAGES['game_over'] + winner.to_s.capitalize + "\n\n"
+      break
+    else
+      sleep(1.75)
+      clear_screen
     end
-  prompt MESSAGES['game_over'] + "#{winner}"
+  end
+
   sleep(0.75)
   prompt MESSAGES['again']
-  answer = again?
+  answer = again
   if yes?(answer)
     score['player'] = 0
     score['computer'] = 0
     score['no one'] = 0
+    clear_screen
   else
     break
   end
 end
-
 
 prompt MESSAGES['bye']
