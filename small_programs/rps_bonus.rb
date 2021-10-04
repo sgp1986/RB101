@@ -92,20 +92,12 @@ def expand(input)
   end
 end
 
-def need_expand(input)
-  if CHOICES.keys.include?(input)
-    input
-  else
-    expand(input)
-  end
+def need_expand?(input)
+  CHOICES.find { |_, hash| hash[:shorthand] == input }
 end
 
 def valid_choice?(input)
-  if CHOICES.keys.include?(input) || CHOICES.keys.include?(expand(input))
-    true
-  else
-    false
-  end
+  CHOICES.keys.include?(input) || CHOICES.keys.include?(expand(input))
 end
 
 def get_user_move
@@ -116,7 +108,7 @@ def get_user_move
     if input == 's'
       input = s_or_s(input)
     end
-    input = need_expand(input)
+    input = expand(input) if need_expand?(input)
     if valid_choice?(input)
       break
     else
@@ -140,11 +132,11 @@ greet()
 
 loop do # MAIN LOOP
   loop do # GAME LOOP
-    prompt <<-SCORE
-The score is:
-    Player: #{score['player']}
-    Computer: #{score['computer']}
-    Ties: #{score['no one']}
+    prompt <<~SCORE
+    The score is:
+      Player: #{score['player']}
+      Computer: #{score['computer']}
+      Ties: #{score['no one']}
     SCORE
     choice = get_user_move
 
