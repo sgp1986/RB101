@@ -8,6 +8,7 @@ INITIAL_MARKER = ' '
 PLAYER_MARKER = ''
 COMPUTER_MARKER = ''
 
+# INTITIALIZE GAME METHODS
 def prompt(msg)
   puts "=> #{msg}"
 end
@@ -51,17 +52,17 @@ def display_board(brd)
   prompt <<~BOARD
   You are #{PLAYER_MARKER}
   Computer is #{COMPUTER_MARKER}
-  X goes first
+  X goes first - First to 5 wins
   
-       |     |
+  1    |2    |3
     #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}
        |     |
   -----+-----+-----
-       |     |
+  4    |5    |6
     #{brd[4]}  |  #{brd[5]}  |  #{brd[6]}
        |     |
   -----+-----+-----
-       |     |
+  7    |8    |9
     #{brd[7]}  |  #{brd[8]}  |  #{brd[9]}
        |     |
 
@@ -74,8 +75,12 @@ def initialize_board
   new_board
 end
 
+def empty_square?(brd, square)
+  brd[square] == INITIAL_MARKER
+end
+
 def empty_squares(brd)
-  brd.keys.select { |num| brd[num] == INITIAL_MARKER }
+  brd.keys.select { |square| empty_square?(brd, square) }
 end
 
 def joinor(arr, separator = ', ', word = 'or')
@@ -93,39 +98,29 @@ def player_places_piece!(brd)
   square = ''
   loop do
     prompt "Choose a square (#{joinor(empty_squares(brd))}):"
-    square = gets.chomp.to_i
-    break if empty_squares(brd).include?(square)
+    square = gets.chomp
+    break if square.to_f % 1 == 0 && empty_squares(brd).include?(square.to_i)
     prompt "Sorry, that's not a valid choice."
   end
-  brd[square] = PLAYER_MARKER
+  brd[square.to_i] = PLAYER_MARKER
 end
 
-def find_at_risk_square(brd)
-  at_risk_line = []
+def find_best_move(brd, marker)
+  board_line = []
   WINNING_LINES.map do |line|
-    if brd.values_at(*line).count(PLAYER_MARKER) == 2
-      at_risk_line << line
+    if brd.values_at(*line).count(marker) == 2
+      board_line << line
     end
   end
-  at_risk_line.flatten.select { |square| brd[square] == INITIAL_MARKER }[0]
+  board_line.flatten.select { |square| empty_square?(brd, square) }[0]
 end
 
-def offensive_move(brd)
-  winning_line = []
-  WINNING_LINES.map do |line|
-    if brd.values_at(*line).count(COMPUTER_MARKER) == 2
-      winning_line << line
-    end
-  end
-  winning_line.flatten.select { |square| brd[square] == INITIAL_MARKER }[0]
-end
-
-def computer_places_piece!(brd)
-  if offensive_move(brd)
-    brd[offensive_move(brd)] = COMPUTER_MARKER
-  elsif find_at_risk_square(brd)
-    brd[find_at_risk_square(brd)] = COMPUTER_MARKER
-  elsif brd[5] == INITIAL_MARKER
+def computer_places_piece!(brd, player, computer)
+  if find_best_move(brd, computer) # offensive move
+    brd[find_best_move(brd, computer)] = COMPUTER_MARKER
+  elsif find_best_move(brd, player) # defensive move
+    brd[find_best_move(brd, player)] = COMPUTER_MARKER
+  elsif empty_square?(brd, 5)
     brd[5] = COMPUTER_MARKER
   else
     square = empty_squares(brd).sample
@@ -138,7 +133,7 @@ def place_piece!(board, current)
     player_places_piece!(board)
   else
     sleep(0.3)
-    computer_places_piece!(board)
+    computer_places_piece!(board, PLAYER_MARKER, COMPUTER_MARKER)
   end
 end
 
@@ -158,13 +153,17 @@ def someone_won?(brd)
   !!detect_winner(brd)
 end
 
+def winning_line?(brd, marker)
+  WINNING_LINES.map do |line|
+    brd.values_at(*line).count(marker) == 3
+  end.any?(true)
+end
+
 def detect_winner(brd)
-  WINNING_LINES.each do |line|
-    if brd.values_at(*line).count(PLAYER_MARKER) == 3
-      return 'Player'
-    elsif brd.values_at(*line).count(COMPUTER_MARKER) == 3
-      return 'Computer'
-    end
+  if winning_line?(brd, PLAYER_MARKER)
+    return 'Player'
+  elsif winning_line?(brd, COMPUTER_MARKER)
+    return 'Computer'
   end
   nil
 end
@@ -208,7 +207,15 @@ loop do # Main Loop
     scoreboard['Ties'] += 1
   end
 
-  break if game_over?(scoreboard)
+  if game_over?(scoreboard)
+    prompt "Game Over! The #{detect_winner(board)} has won!"
+    prompt "Do you want to play again?"
+    answer = gets.chomp
+    break unless answer.downcase.start_with?('y')
+    scoreboard['Player'] = 0
+    scoreboard['Computer'] = 0
+    scoreboard['Ties'] = 0
+  end
 end
 
-prompt "Game Over! Thanks for playing Tic Tac Toe! Goodbye!"
+prompt "Thanks for playing Tic Tac Toe! Goodbye!"
