@@ -1,0 +1,21 @@
+welcome: "Welcome to No Limit 21! Have a seat and place your bet!"
+hit_stay: "Would you like to hit or stay?"
+hs_error: "Please enter hit or stay."
+chose_stay: "You chose to stay with "
+chose_hit: "You chose to Hit..."
+player_bust: "You busted out with "
+dealer_hit: "Dealer will hit, receiving "
+push: "It's a push!(tie)"
+won: "You have won this hand!"
+loss: "The Dealer wins this one."
+deal: "You've been dealt the following cards: "
+showing: "The Dealer is showing: "
+bj: "BlackJack!!"
+reveal: "The Dealer turns over their other card, revealing: "
+dealer_bust: "The Dealer has busted out with "
+again: "Ready for the next hand?"
+yes_no: "Please enter either yes or no"
+continue: "Great! Place your bets..."
+bye: |
+  Trying your luck at another table? Good luck and thank you for playing 21!
+  Don't forget to tip your dealer!
