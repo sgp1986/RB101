@@ -98,15 +98,6 @@ end
 # 3.0.0 :012 > a.map { |row| row[1].is_a?(String) }.all?
 #  => false 
 
-# test order
-# ORDER = [7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1]
-
-ORDER = [31,50,79,59,39,53,58,95,92,55,40,97,81,22,69,26,6,23,3,29,83,48,18,75,47,49,62,45,35,34,1,88,54,16,56,77,28,94,52,15,0,87,93,90,60,67,68,85,80,51,20,96,61,66,63,91,8,99,70,13,71,17,7,38,44,43,5,25,72,2,57,33,82,78,89,21,30,11,73,84,4,46,14,19,12,10,42,32,64,98,9,74,86,27,24,65,37,41,76,36]
-
-
-
-initialize_board(boards)
-
 # iterate through ORDER, mark off any board numbers that match |calling|
   # order[0] = 7
   # iterate through boards to access each board of 5 rows |board|
@@ -114,6 +105,14 @@ initialize_board(boards)
       # iterate through each row to access each number |number|
         # check if the number matches the called number
 
+# test order
+# ORDER = [7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1]
+
+ORDER = [31,50,79,59,39,53,58,95,92,55,40,97,81,22,69,26,6,23,3,29,83,48,18,75,47,49,62,45,35,34,1,88,54,16,56,77,28,94,52,15,0,87,93,90,60,67,68,85,80,51,20,96,61,66,63,91,8,99,70,13,71,17,7,38,44,43,5,25,72,2,57,33,82,78,89,21,30,11,73,84,4,46,14,19,12,10,42,32,64,98,9,74,86,27,24,65,37,41,76,36]
+
+initialize_board(boards)
+
+# METHOD DEFINITIONS
 def winning_row?(boards)
   boards.map do |board|
     board.any? do |row|
@@ -197,6 +196,7 @@ end
 #   ]
 # ]
 
+# METHOD TESTS
 # p check_rows(test)
 # p check_cols(test)
 
