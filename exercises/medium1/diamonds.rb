@@ -1,7 +1,7 @@
 def print_row(grid_size, distance_from_center)
   number_of_stars = grid_size - 2 * distance_from_center
   stars = if number_of_stars > 1
-            "*#{' ' * (number_of_stars - 2)}*"
+            '*' * number_of_stars
           else
             '*' * number_of_stars
           end

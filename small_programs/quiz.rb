@@ -5,4 +5,6 @@ end
 greeting = "hi"
 extend_greeting(greeting)
 
-puts greeting
+# puts greeting
+
+puts /home/sgp/school/RB101
