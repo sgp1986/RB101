@@ -12,14 +12,18 @@ suits = ["♠", "♣", "♦", "♥"]
 
 deck = []
 
-scoreboard = { 'User' => 0, 'Dealer' => 0, 'Pushes' => 0 }
+scoreboard = { 'User' => 0, 'Dealer' => 0, 'Pushes' => 0, 'Total Chips' => 0 }
 
-def display_score(scoreboard)
+current_bet = 0
+
+def display_score(scoreboard, current_bet)
   prompt <<~SCORE
   Total hands won:
   User: #{scoreboard['User']}
   Dealer: #{scoreboard['Dealer']}
   Pushes: #{scoreboard['Pushes']}
+  Total Chips: $#{scoreboard['Total Chips']}
+  Current Bet: $#{current_bet}
 
   SCORE
 end
@@ -38,9 +42,12 @@ def prompt(msg)
   sleep(0.8)
 end
 
-def welcome
+def welcome(buy_in)
   system 'clear'
   prompt PROMPTS['welcome']
+  sleep(0.8)
+  buy_in = 100
+
 end
 
 # INPUT VALIDATORS
@@ -209,10 +216,11 @@ def determine_winner?(user1, user2)
   bust?(user2) || user1 > user2 && user1 <= 21
 end
 
-def display_winner(user, dealer, scoreboard)
+def display_winner(user, dealer, scoreboard, current_bet)
   if determine_winner?(user, dealer)
     prompt PROMPTS['won']
     scoreboard['User'] += 1
+    scoreboard['Total Chips'] += current_bet * 2
   elsif determine_winner?(dealer, user)
     prompt PROMPTS['loss']
     scoreboard['Dealer'] += 1
@@ -235,13 +243,58 @@ def play_again?(answer)
   end
 end
 
+# BETTING MECHANICS
+# need
+  # track bets and total money
+  # input bet
+  # winning - calculate odds
+  # losing - remove bet
+  # remove bet amount from total "buy in"
+  # track buy-ins if multiple
+  # betting limits
+  # insurance?
+
+# Add later on
+  # playing multiple seats?
+  # playing with 2 decks that don't get shuffled after every round
+  # showing card faces (maybe)
+
+# start game with $100 buy in
+# add $100 to players total money (money = 100)
+# ask user for bet amount for first hand
+# remove bet amount from total money, store as current bet
+# let hand play out
+# if player wins, calculate payout based on odds
+  # blackjack pays original bet back play 1.5 amount again
+  # win pays your original bet back plus the same amount again
+  # push returns bet
+# if player loses, reset current bet to 0 and ask for next bet
+# game ends when players money reaches 0
+  # ask if player wants another $100 buy in. if so, track how many times they've bought in
+# minimum bet is $5, max is $50
+
+
+
+
 # START OF GAME
-welcome
+scoreboard['Total Chips'] = welcome(scoreboard['Total Chips'])
 
 loop do # MAIN LOOP
   system 'clear'
-  display_score(scoreboard)
   prompt PROMPTS['loop_title']
+  loop do # BETTING LOOP
+    current_bet = gets.chomp.to_i
+    if current_bet > scoreboard['Total Chips']
+      prompt "You cannot bet more than you've got."
+    elsif current_bet < 5 || current_bet > 25
+      prompt "must be between 5 and 25"
+    else
+      scoreboard['Total Chips'] -= current_bet
+      break
+    end
+  end
+  
+  display_score(scoreboard, current_bet)
 
   dealt_hands = { user: [], dealer: [] }
   hands = { user: { hand: [], score: 0 }, dealer: { hand: [], score: 0 } }
@@ -255,7 +308,11 @@ loop do # MAIN LOOP
            " for a score of #{hands[:user][:score]}."
     prompt PROMPTS['showing'] + "#{dealt_hands[:dealer][1].join}..."
 
-    break prompt PROMPTS['bj'] if hands[:user][:score] == 21
+    if hands[:user][:score] == 21
+      prompt PROMPTS['bj'] 
+      scoreboard['Total Chips'] += current_bet * 2.5
+      break
+    end
 
     users_turn(deck, hands)
     break if bust?(hands[:user][:score])
@@ -274,13 +331,15 @@ loop do # MAIN LOOP
   elsif push?(hands[:user][:score], hands[:dealer][:score])
     prompt PROMPTS['push']
     scoreboard['Pushes'] += 1
+    scoreboard['Total Chips'] += current_bet
   end
 
-  display_winner(hands[:user][:score], hands[:dealer][:score], scoreboard)
+  display_winner(hands[:user][:score], hands[:dealer][:score], scoreboard, current_bet)
 
   answer = ''
+  break if scoreboard['Total Chips'] == 0
   play_again?(answer)
-  break if no?(answer)
+  break if no?(answer) 
   prompt PROMPTS['continue']
 end
 

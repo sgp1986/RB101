@@ -1,5 +1,7 @@
-welcome: "Welcome to No Limit 21! Have a seat and place your bet!"
-loop_title: "Ok, no more bets!"
+welcome: |
+  Welcome to 21! Have a seat and place your bet!
+  You've bought in for $100. The minimum bet is $5, and the maximum bet is $25.
+loop_title: "Please enter your bet amount:"
 hit_stay: "Would you like to (h)it or (s)tay?"
 hs_error: "Please enter (h)it or (s)tay."
 chose_stay: "You chose to stay with "
